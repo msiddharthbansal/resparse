@@ -64,4 +64,4 @@ class Settings (BaseSettings):
             'recency': self.weight_recency
         }
 
-setting = Settings()
+settings = Settings()

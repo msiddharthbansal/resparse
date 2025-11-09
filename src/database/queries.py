@@ -5,7 +5,6 @@ class DatabaseQueries:
     
     @staticmethod
     def get_categories() -> List[str]:
-        """Get all unique category names"""
         with db.get_cursor() as cursor:
             cursor.execute("""
                 SELECT DISTINCT category_name 
@@ -16,7 +15,6 @@ class DatabaseQueries:
     
     @staticmethod
     def get_top_journals_by_category(category: str, limit: int = 5) -> List[Dict]:
-        """Get top N journals in a category by JIF"""
         with db.get_cursor() as cursor:
             cursor.execute("""
                 SELECT DISTINCT j.journal_id, j.journal_name, j.journal_abbr,
@@ -33,7 +31,6 @@ class DatabaseQueries:
     
     @staticmethod
     def get_latest_papers_by_journal(journal_id: int, limit: int = 10) -> List[Dict]:
-        """Get latest N papers from a journal"""
         with db.get_cursor() as cursor:
             cursor.execute("""
                 SELECT paper_id, title, doi, abstract, publication_date, 
@@ -49,7 +46,6 @@ class DatabaseQueries:
     
     @staticmethod
     def get_paper_details(paper_id: int) -> Optional[Dict]:
-        """Get complete paper details with journal info"""
         with db.get_cursor() as cursor:
             cursor.execute("""
                 SELECT p.*, 
@@ -65,7 +61,6 @@ class DatabaseQueries:
     
     @staticmethod
     def get_paper_authors(paper_id: int) -> List[Dict]:
-        """Get authors for a paper"""
         with db.get_cursor() as cursor:
             cursor.execute("""
                 SELECT a.author_id, a.full_name, a.affiliation, pa.author_position
