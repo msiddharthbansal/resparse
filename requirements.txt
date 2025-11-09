@@ -59,7 +59,7 @@ transformers
 torch
 numpy
 scipy
-pinecone-client
+pinecone
 groq
 fastapi
 uvicorn[standard]
