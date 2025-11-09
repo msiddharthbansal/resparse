@@ -1,5 +1,4 @@
 from typing import Dict
-from winreg import ExpandEnvironmentStrings
 from src.llm.groq_client import groq_client
 
 class ExplainerAgent:
