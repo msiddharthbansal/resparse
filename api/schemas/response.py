@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional, Dict, Any
 
 class AuthorSchema(BaseModel):
@@ -15,10 +15,14 @@ class JournalSchema(BaseModel):
     ranking: Optional[int]
 
 class PublicationSchema(BaseModel):
-    year: int
+    year: str 
     date: str
     volume: str
     issue: str
+
+    @field_validator("year", mode="before")
+    def convert_year_to_str(cls, v):
+        return str(v)
 
 class ScoreBreakdownSchema(BaseModel):
     semantic: str
@@ -42,6 +46,12 @@ class PaperResultSchema(BaseModel):
     explanation: str
     highlights: Dict[str, str]
     score_breakdown: ScoreBreakdownSchema
+
+    @field_validator("highlights", mode="before")
+    def highlights_str_values(cls, v):
+        if isinstance(v, dict):
+            return {k: str(val) for k, val in v.items()}
+        return v
 
 class CategorySchema(BaseModel):
     category_name: str
