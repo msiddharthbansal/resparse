@@ -1,0 +1,24 @@
+{
+    "test_queries": [
+        {
+            "query": "continual learning in reinforcement learning",
+            "expected_categories": ["Artificial Intelligence", "Machine Learning", "Robotics"]
+        },
+        {
+            "query": "object detection using deep learning",
+            "expected_categories": ["Computer Vision", "Artificial Intelligence", "Machine Learning"]
+        },
+        {
+            "query": "transformer models for natural language processing",
+            "expected_categories": ["Natural Language Processing", "Artificial Intelligence", "Machine Learning"]
+        },
+        {
+            "query": "robot path planning algorithms",
+            "expected_categories": ["Robotics", "Artificial Intelligence", "Computer Science"]
+        },
+        {
+            "query": "neural networks for time series forecasting",
+            "expected_categories": ["Machine Learning", "Artificial Intelligence", "Data Science"]
+        }
+    ]
+}

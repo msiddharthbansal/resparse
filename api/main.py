@@ -4,6 +4,9 @@ from fastapi.responses import JSONResponse
 import time
 from api.routes import search, papers, categories, health
 from src.config.settings import settings
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI(
     title="RESPARSE API",
@@ -62,3 +65,11 @@ if __name__ == "__main__":
         reload=settings.debug,
         workers=1 if settings.debug else settings.api_workers
     )
+    
+    frontend_path = os.path.join(os.path.dirname(__file__), '..', 'frontend')
+    if os.path.exists(frontend_path):
+        app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
+        
+        @app.get("/")
+        async def serve_frontend():
+            return FileResponse(os.path.join(frontend_path, 'index.html'))
