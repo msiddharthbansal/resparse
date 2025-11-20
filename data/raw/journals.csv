@@ -1,25 +1,25 @@
 journal_id,journal_name,journal_abbr,journal_url
-1,Machine Intelligence Research,MACH INTELL RES,https://www.springer.com/journal/11633
+1,Machine Intelligence Research,MACH INTELL RES,https://link.springer.com/journal/11633
 2,Intelligent Data Analysis,INTELL DATA ANAL,https://journals.sagepub.com/home/ida
 3,Complex and Intelligent Systems,COMPLEX INTELL SYST,https://link.springer.com/journal/40747
 4,INTERNATIONAL JOURNAL OF COMPUTER VISION,INT J COMPUT VISION,https://link.springer.com/journal/11263
 5,Evolutionary Intelligence,EVOL INTELL,https://link.springer.com/journal/12065
-6,PATTERN ANALYSIS AND APPLICATIONS
-7,Computational Visual Media
-8,ACM TRANSACTIONS ON GRAPHICS
-9,JOURNAL OF NETWORK AND COMPUTER APPLICATIONS
-10,IEEE Transactions on Dependable and Secure Computing
-11,e-Informatica Software Engineering Journal
-12,Visual Informatics
-13,International Journal of Reconfigurable Computing
-14,ACM Transactions on Reconfigurable Technology and Systems
-15,International Journal of Embedded Systems
-16,IEEE Computer Architecture Letters
-17,IEEE Journal on Exploratory Solid-State Computational Devices and Circuits
-18,Science Robotics
-19,Advanced Intelligent Systems
-20,Soft Robotics
-21,International Journal of Humanoid Robotics
-22,ROBOMECH Journal
+6,PATTERN ANALYSIS AND APPLICATIONS,PATTERN ANAL APPL,https://link.springer.com/journal/10044
+7,Computational Visual Media,COMPUT VIS MEDIA,https://link.springer.com/journal/41095
+8,ACM TRANSACTIONS ON GRAPHICS,ACM T GRAPHIC,https://dl.acm.org/journal/tog
+9,JOURNAL OF NETWORK AND COMPUTER APPLICATIONS,J NETW COMPUT APPL,https://www.sciencedirect.com/journal/journal-of-network-and-computer-applications
+10,IEEE Transactions on Dependable and Secure Computing,IEEE T DEPEND SECURE,https://www.computer.org/csdl/journal/tq
+11,e-Informatica Software Engineering Journal,E-INFORMATICA,https://www.e-informatyka.pl/
+12,Visual Informatics,VIS INFORM,https://www.sciencedirect.com/journal/visual-informatics
+13,International Journal of Reconfigurable Computing,INT J RECONFIGURABLE,https://onlinelibrary.wiley.com/journal/1961
+14,ACM Transactions on Reconfigurable Technology and Systems,ACM T RECONFIG TECHN,https://dl.acm.org/journal/trets
+15,International Journal of Embedded Systems,INT J EMBED SYST,https://www.inderscience.com/jhome.php?jcode=ijes
+16,IEEE Computer Architecture Letters,IEEE COMPUT ARCHIT L,https://www.computer.org/csdl/journal/ca
+17,IEEE Journal on Exploratory Solid-State Computational Devices and Circuits,IEEE J EXPLOR SOLID ST,https://ieee-cas.org/publication/ieee-journal-exploratory-solid-state-computational-devices-and-circuits
+18,Science Robotics,SCI ROBOT,https://www.science.org/journal/scirobotics
+19,Advanced Intelligent Systems,ADV INTELL SYST-GER,https://advanced.onlinelibrary.wiley.com/journal/26404567
+20,Soft Robotics,SOFT ROBOT,https://home.liebertpub.com/publications/soft-robotics/616/
+21,International Journal of Humanoid Robotics,INT J HUM ROBOT,https://www.worldscientific.com/worldscinet/IJHR
+22,ROBOMECH Journal,ROBOMECH J,https://link.springer.com/journal/40648
 23,Foundations and Trends in Machine Learning,FOUND TRENDS MACH LE,https://www.nowpublishers.com/MAL
 24,International Journal of Neural Systems,INT J NEURAL SYST,https://www.worldscientific.com/worldscinet/ijns
