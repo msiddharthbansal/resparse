@@ -30,10 +30,12 @@ def setup_database():
         port=os.getenv('POSTGRES_PORT'),
         user=os.getenv('POSTGRES_USER'),
         password=os.getenv('POSTGRES_PASSWORD'),
-        database='postgres'
+        database=db_name
     )
 
     cursor = conn.cursor()
+    cursor.execute("DROP SCHEMA public CASCADE;")
+    cursor.execute("CREATE SCHEMA public;")
     with open ('database/schema.sql', 'r') as f:
         cursor.execute(f.read())
 

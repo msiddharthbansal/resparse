@@ -16,14 +16,17 @@ conn = psycopg2.connect(
 
 def load_journals():
     df = pd.read_csv('data/raw/journals.csv')
-    data = [(r['journal_name'], r['journal_abbr'], r['journal_url']) 
+    data = [(r['journal_id'], r['journal_name'], r['journal_abbr'], r['journal_url'])
             for _, r in df.iterrows()]
     
     cursor = conn.cursor()
     execute_batch(cursor, """
-        INSERT INTO journals (journal_name, journal_abbr, journal_url)
-        VALUES (%s, %s, %s)
-        ON CONFLICT (journal_name) DO NOTHING
+        INSERT INTO journals (journal_id, journal_name, journal_abbr, journal_url)
+        VALUES (%s, %s, %s, %s)
+        ON CONFLICT (journal_id) DO UPDATE
+        SET journal_name = EXCLUDED.journal_name,
+            journal_abbr = EXCLUDED.journal_abbr,
+            journal_url = EXCLUDED.journal_url
     """, data)
     conn.commit()
     cursor.close()
@@ -64,7 +67,7 @@ def load_journal_categories():
 def load_papers():
     df = pd.read_csv('data/raw/papers.csv')
 
-    data = [(r['title'], r['doi'], r['journal_id'], r['publication_date'],
+    data = [(r['paper_id'], r['title'], r['doi'], r['journal_id'], r['publication_date'],
              r['publication_year'], r['volume'], r['issue'], r['abstract'],
              r['keywords'], r['pdf_url'], r['citation_count'])
             for _, r in df.iterrows()]
@@ -72,9 +75,9 @@ def load_papers():
     cursor = conn.cursor()
     execute_batch(cursor, """
         INSERT INTO papers 
-        (title, doi, journal_id, publication_date, publication_year,
+        (paper_id, title, doi, journal_id, publication_date, publication_year,
          volume, issue, abstract, keywords, pdf_url, citation_count)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (doi) DO NOTHING
     """, data, page_size=100)
 
@@ -84,12 +87,12 @@ def load_papers():
 
 def load_authors():
     df = pd.read_csv('data/raw/authors.csv')
-    data = [(r['full_name'], r['affiliation']) for _, r in df.iterrows()]
+    data = [(r['author_id'], r['full_name'], r['affiliation']) for _, r in df.iterrows()]
     
     cursor = conn.cursor()
     execute_batch(cursor, """
-        INSERT INTO authors (full_name, affiliation)
-        VALUES (%s, %s)
+        INSERT INTO authors (author_id, full_name, affiliation)
+        VALUES (%s, %s, %s)
     """, data)
     conn.commit()
     cursor.close()

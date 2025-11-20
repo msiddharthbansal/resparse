@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS journals (
-    journal_id SERIAL PRIMARY KEY,
+    journal_id INTEGER PRIMARY KEY,
     journal_name VARCHAR(500) NOT NULL UNIQUE,
     journal_abbr VARCHAR(100),
     journal_url TEXT,
@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS journals (
 );
 
 CREATE TABLE IF NOT EXISTS journal_metrics (
-    metric_id SERIAL PRIMARY KEY,
     journal_id INTEGER NOT NULL REFERENCES journals(journal_id) ON DELETE CASCADE,
     year INTEGER NOT NULL,
     jif DECIMAL(10, 3),
@@ -21,14 +20,13 @@ CREATE TABLE IF NOT EXISTS journal_metrics (
 );
 
 CREATE TABLE IF NOT EXISTS journal_categories (
-    journal_category_id SERIAL PRIMARY KEY,
     journal_id INTEGER NOT NULL REFERENCES journals(journal_id) ON DELETE CASCADE,
     category_name VARCHAR(255) NOT NULL,
     UNIQUE (journal_id, category_name)
 );
 
 CREATE TABLE IF NOT EXISTS papers (
-    paper_id SERIAL PRIMARY KEY,
+    paper_id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
     doi VARCHAR(255) UNIQUE,
     journal_id INTEGER REFERENCES journals(journal_id),
@@ -45,14 +43,13 @@ CREATE TABLE IF NOT EXISTS papers (
 );
 
 CREATE TABLE IF NOT EXISTS authors (
-    author_id SERIAL PRIMARY KEY,
+    author_id INTEGER PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     affiliation VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS paper_authors (
-    paper_author_id SERIAL PRIMARY KEY,
     paper_id INTEGER NOT NULL REFERENCES papers(paper_id) ON DELETE CASCADE,
     author_id INTEGER NOT NULL REFERENCES authors(author_id),
     author_position INTEGER,
