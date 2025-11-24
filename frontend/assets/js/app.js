@@ -149,7 +149,6 @@ function displayResults(data) {
  */
 function createPaperCard(paper, index) {
     const quartileColor = getQuartileColor(paper.journal.quartile);
-    const semanticScore = (paper.scores.semantic * 100).toFixed(0);
     const finalScore = (paper.scores.final * 100).toFixed(1);
 
     return `
@@ -222,62 +221,14 @@ function createPaperCard(paper, index) {
                 </div>
             </div>
 
-            <!-- Score Breakdown -->
-            <div class="mb-4">
-                <p class="text-sm font-semibold text-gray-700 mb-3">Relevance Scores:</p>
-                <div class="space-y-2">
-                    <!-- Semantic Score -->
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">
-                                <i class="fas fa-brain text-blue-600 mr-1"></i>
-                                Semantic Relevance
-                            </span>
-                            <span class="font-semibold text-gray-800">${paper.score_breakdown.semantic}</span>
-                        </div>
-                        <div class="score-bar">
-                            <div class="score-fill bg-blue-500" style="width: ${semanticScore}%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Journal Quality Score -->
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">
-                                <i class="fas fa-medal text-green-600 mr-1"></i>
-                                Journal Quality
-                            </span>
-                            <span class="font-semibold text-gray-800">${paper.score_breakdown.journal_quality}</span>
-                        </div>
-                        <div class="score-bar">
-                            <div class="score-fill bg-green-500" style="width: ${(paper.scores.jif_normalized * 100).toFixed(0)}%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Recency Score -->
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">
-                                <i class="fas fa-clock text-purple-600 mr-1"></i>
-                                Recency
-                            </span>
-                            <span class="font-semibold text-gray-800">${paper.score_breakdown.recency}</span>
-                        </div>
-                        <div class="score-bar">
-                            <div class="score-fill bg-purple-500" style="width: ${(paper.scores.recency * 100).toFixed(0)}%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Overall Score -->
-                    <div class="pt-2 border-t border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-800">
-                                <i class="fas fa-star text-yellow-500 mr-1"></i>
-                                Overall Score
-                            </span>
-                            <span class="text-2xl font-bold text-blue-600">${finalScore}%</span>
-                        </div>
-                    </div>
+            <!-- Overall Score -->
+            <div class="mb-4 pt-2 border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <span class="font-semibold text-gray-800">
+                        <i class="fas fa-star text-yellow-500 mr-1"></i>
+                        Overall Score
+                    </span>
+                    <span class="text-2xl font-bold text-blue-600">${finalScore}%</span>
                 </div>
             </div>
 
