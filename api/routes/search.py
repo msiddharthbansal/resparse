@@ -8,11 +8,6 @@ from decimal import Decimal
 router = APIRouter(prefix="/api", tags=["search"])
 
 def sanitize(obj):
-    """
-    Recursively make all data JSON-serializable.
-    - Converts Decimal → float
-    - Replaces nan/inf values with None
-    """
     if isinstance(obj, Decimal):
         obj = float(obj)
 
@@ -38,11 +33,9 @@ async def search_papers(request: searchRequest):
             use_cache=request.use_cache
         )
 
-        # Apply top_n filter
         if request.top_n and request.top_n < len(results["results"]):
             results["results"] = results["results"][: request.top_n]
 
-        # 🔥 FIX: Sanitizing the entire output to avoid JSON serialization crashes
         results = sanitize(results)
 
         return results
