@@ -1,4 +1,5 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
+from urllib.parse import quote_plus
 from src.agents.query_agents import query_agent
 from src.agents.retrieval_agent import retrieval_agent
 from src.agents.ranking_agent import ranking_agent
@@ -7,6 +8,30 @@ from src.database.queries import queries
 from src.cache.redis_client import cache
 
 class ResparseOrchestrator:
+    def __init__(self) -> None:
+        self.scholar_base_url = "https://scholar.google.com/scholar?q="
+
+    def _build_google_scholar_url(self, query: str) -> str:
+        return f"{self.scholar_base_url}{quote_plus(query)}"
+
+    def _no_results_response(
+        self,
+        query: str,
+        categories: List[Dict],
+        message: str,
+        diagnostics: Optional[Dict] = None
+    ) -> Dict:
+        return {
+            'query': query,
+            'categories': categories,
+            'total_candidates': 0,
+            'results': [],
+            'message': message,
+            'fallback_url': self._build_google_scholar_url(query),
+            'diagnostics': diagnostics or {},
+            'from_cache': False
+        }
+
     def search(self, query: str, use_cache: bool = True) -> Dict:
         if use_cache:
             cached_result = cache.get_query_cache(query)
@@ -18,18 +43,30 @@ class ResparseOrchestrator:
         print (f"Processing query: {query}!")
         processed_query = query_agent.process(query)
 
+        if processed_query.get('no_category_match'):
+            return self._no_results_response(
+                query=query,
+                categories=processed_query['top_categories'],
+                message='We could not match your query to any known research categories. Try a broader description or different terms.',
+                diagnostics={'reason': 'no_category_match'}
+            )
+
         print (f"Top Categories: {[c['category_name'] for c in processed_query['top_categories']]}")
         print ("Retrieving candidate papers!")
 
-        candidate_papers = retrieval_agent.retrieve(processed_query)
+        retrieval_output = retrieval_agent.retrieve(processed_query)
+        candidate_papers = retrieval_output['papers']
+        diagnostics = retrieval_output.get('diagnostics', {})
+        total_candidates = retrieval_output.get('candidate_count', len(candidate_papers))
+
         if not candidate_papers:
-            return {
-                'query': query,
-                'categories': processed_query['top_categories'],
-                'results': [],
-                'message': 'No relevant papers found. Try broader search terms.',
-                'from_cache': False
-            }
+            message = self._compose_no_results_message(diagnostics)
+            return self._no_results_response(
+                query=query,
+                categories=processed_query['top_categories'],
+                message=message,
+                diagnostics=diagnostics
+            )
 
         print("Ranking the papers!")
         ranked_papers = ranking_agent.rank(candidate_papers)
@@ -84,8 +121,11 @@ class ResparseOrchestrator:
         response = {
             'query': query,
             'categories': processed_query['top_categories'],
-            'total_candidates': len(candidate_papers),
+            'total_candidates': total_candidates,
             'results': final_results,
+            'message': None,
+            'fallback_url': None,
+            'diagnostics': diagnostics,
             'from_cache': False
         }
 
@@ -93,5 +133,23 @@ class ResparseOrchestrator:
             cache.set_query_cache(query, response)
         
         return response
+
+    def _compose_no_results_message(self, diagnostics: Dict) -> str:
+        categories_without_journals = diagnostics.get('categories_without_journals', [])
+        journals_without_papers = diagnostics.get('journals_without_papers', [])
+
+        if categories_without_journals:
+            return (
+                "None of the matched categories currently have indexed journals "
+                f"({', '.join(categories_without_journals)})."
+            )
+
+        if journals_without_papers:
+            return (
+                "The journals we checked do not have recent papers available. "
+                "Try expanding your search scope."
+            )
+
+        return 'No relevant papers found. Try broader search terms.'
 
 orchestrator = ResparseOrchestrator()

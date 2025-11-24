@@ -21,6 +21,8 @@ const candidateCount = document.getElementById('candidateCount');
 
 const resultsContainer = document.getElementById('resultsContainer');
 const noResults = document.getElementById('noResults');
+const noResultsMessage = document.getElementById('noResultsMessage');
+const scholarLinkBtn = document.getElementById('scholarLinkBtn');
 
 const exampleQueriesBtn = document.getElementById('exampleQueriesBtn');
 const exampleQueries = document.getElementById('exampleQueries');
@@ -103,7 +105,7 @@ async function handleSearch(e) {
         if (results.results && results.results.length > 0) {
             displayResults(results);
         } else {
-            showNoResults();
+            showNoResults(results.message, results.fallback_url);
         }
 
     } catch (error) {
@@ -449,7 +451,20 @@ function hideError() {
 /**
  * Show no results message
  */
-function showNoResults() {
+function showNoResults(message, fallbackUrl) {
+    if (message) {
+        noResultsMessage.textContent = message;
+    } else {
+        noResultsMessage.textContent = 'Try different keywords or broader search terms';
+    }
+
+    if (fallbackUrl) {
+        scholarLinkBtn.href = fallbackUrl;
+        scholarLinkBtn.classList.remove('hidden');
+    } else {
+        scholarLinkBtn.classList.add('hidden');
+    }
+
     noResults.classList.remove('hidden');
     noResults.classList.add('fade-in');
 }
@@ -459,6 +474,7 @@ function showNoResults() {
  */
 function hideNoResults() {
     noResults.classList.add('hidden');
+    scholarLinkBtn.classList.add('hidden');
 }
 
 /**

@@ -9,9 +9,11 @@ class RetrievalAgent:
         self.latest_papers_per_journal = settings.latest_papers_per_journal
         self.top_papers_to_rank = settings.top_papers_to_rank
 
-    def retrieve(self, processed_query: Dict) -> List[Dict]:
+    def retrieve(self, processed_query: Dict) -> Dict:
         selected_journals = set()
         journal_details = {}
+        categories_without_journals = []
+        journals_without_papers = []
 
         for category_info in processed_query['top_categories']:
             category = category_info['category_name']
@@ -20,6 +22,11 @@ class RetrievalAgent:
                 category,
                 limit=self.top_journals_per_category
             )
+
+            if not top_journals:
+                categories_without_journals.append(category)
+                continue
+
             for journal in top_journals:
                 journal_id = journal['journal_id']
                 if journal_id not in selected_journals:
@@ -36,6 +43,11 @@ class RetrievalAgent:
                 journal_id, 
                 limit=self.latest_papers_per_journal
             )
+
+            if not papers:
+                journals_without_papers.append(journal_details[journal_id]['journal_name'])
+                continue
+
             for paper in papers:
                 paper_id = paper['paper_id']
                 candidate_paper_ids.append(paper_id)
@@ -48,6 +60,18 @@ class RetrievalAgent:
                     'ranking': journal_details[journal_id]['ranking']
                 }
         print (f"Collected {len(candidate_paper_ids)} candidate papers!")
+
+        if not candidate_paper_ids:
+            diagnostics = {
+                'categories_without_journals': categories_without_journals,
+                'journals_without_papers': journals_without_papers,
+                'selected_journal_count': len(selected_journals)
+            }
+            return {
+                'papers': [],
+                'candidate_count': 0,
+                'diagnostics': diagnostics
+            }
 
         query_embedding = processed_query['query_embedding']
         pinecone_results = pinecone_client.query(
@@ -69,7 +93,17 @@ class RetrievalAgent:
 
         print(f"Retrieved top {len(top_papers)} top papers!")
 
-        return top_papers
+        diagnostics = {
+            'categories_without_journals': categories_without_journals,
+            'journals_without_papers': journals_without_papers,
+            'selected_journal_count': len(selected_journals)
+        }
+
+        return {
+            'papers': top_papers,
+            'candidate_count': len(relevant_papers),
+            'diagnostics': diagnostics
+        }
 
 retrieval_agent = RetrievalAgent()
 

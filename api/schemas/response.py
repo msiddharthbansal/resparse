@@ -63,6 +63,9 @@ class SearchResponse(BaseModel):
     total_candidates: int
     results: List[PaperResultSchema]
     from_cache: bool
+    message: Optional[str] = None
+    fallback_url: Optional[str] = None
+    diagnostics: Optional[Dict[str, Any]] = None
     
 class ErrorResponse(BaseModel):
     error: str
