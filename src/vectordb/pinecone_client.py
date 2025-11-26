@@ -1,5 +1,6 @@
 from pinecone import Pinecone
 from typing import List, Dict
+from time import perf_counter
 from src.config.settings import settings
 
 class PineconeClient:
@@ -12,12 +13,14 @@ class PineconeClient:
               top_k: int = 100,
               filter_dict: Dict = None) -> List[Dict]:
         
+        start = perf_counter()
         results = self.index.query(
             vector=embedding,
             top_k=top_k,
             include_metadata=True,
             filter=filter_dict
         )
+        duration_ms = (perf_counter() - start) * 1000
         
         papers = []
         for match in results['matches']:
@@ -32,7 +35,11 @@ class PineconeClient:
                 'jif': match['metadata'].get('jif', 0.0),
                 'quartile': match['metadata'].get('quartile', 'N/A')
             })
-        
+        print(
+            "[metrics][vector_search] "
+            f"top_k={top_k} duration_ms={duration_ms:.2f} "
+            f"matches={len(papers)}"
+        )
         return papers
     
     def get_stats(self) -> Dict:

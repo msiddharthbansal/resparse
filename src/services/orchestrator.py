@@ -1,5 +1,6 @@
 from typing import List, Dict, Optional
 from urllib.parse import quote_plus
+from time import perf_counter
 from src.agents.query_agents import query_agent
 from src.agents.retrieval_agent import retrieval_agent
 from src.agents.ranking_agent import ranking_agent
@@ -33,17 +34,47 @@ class ResparseOrchestrator:
         }
 
     def search(self, query: str, use_cache: bool = True) -> Dict:
+        request_start = perf_counter()
+        cache_lookup_ms = None
+        cache_hit = False
+        cached_compute_ms = None
+
         if use_cache:
+            cache_start = perf_counter()
             cached_result = cache.get_query_cache(query)
+            cache_lookup_ms = (perf_counter() - cache_start) * 1000
             if cached_result:
-                print ("Returning the cached results!")
+                cache_hit = True
+                cached_compute_ms = (
+                    cached_result
+                    .get('diagnostics', {})
+                    .get('timing', {})
+                    .get('compute_ms')
+                )
+                total_ms = (perf_counter() - request_start) * 1000
+                print(
+                    "[metrics][cache] hit "
+                    f"query='{query}' "
+                    f"lookup_ms={cache_lookup_ms:.2f} "
+                    f"saved_compute_ms={cached_compute_ms if cached_compute_ms is not None else 'n/a'} "
+                    f"total_ms={total_ms:.2f}"
+                )
                 cached_result['from_cache'] = True
                 return cached_result
 
         print (f"Processing query: {query}!")
+        processing_start = perf_counter()
         processed_query = query_agent.process(query)
+        processing_ms = (perf_counter() - processing_start) * 1000
 
         if processed_query.get('no_category_match'):
+            total_ms = (perf_counter() - request_start) * 1000
+            print(
+                "[metrics][query] no_category_match "
+                f"query='{query}' total_ms={total_ms:.2f} "
+                f"cache_lookup_ms={cache_lookup_ms if cache_lookup_ms is not None else 0:.2f} "
+                f"processing_ms={processing_ms:.2f}"
+            )
             return self._no_results_response(
                 query=query,
                 categories=processed_query['top_categories'],
@@ -54,12 +85,21 @@ class ResparseOrchestrator:
         print (f"Top Categories: {[c['category_name'] for c in processed_query['top_categories']]}")
         print ("Retrieving candidate papers!")
 
+        retrieval_start = perf_counter()
         retrieval_output = retrieval_agent.retrieve(processed_query)
+        retrieval_ms = (perf_counter() - retrieval_start) * 1000
         candidate_papers = retrieval_output['papers']
         diagnostics = retrieval_output.get('diagnostics', {})
         total_candidates = retrieval_output.get('candidate_count', len(candidate_papers))
 
         if not candidate_papers:
+            total_ms = (perf_counter() - request_start) * 1000
+            print(
+                "[metrics][query] no_candidates "
+                f"query='{query}' total_ms={total_ms:.2f} "
+                f"processing_ms={processing_ms:.2f} "
+                f"retrieval_ms={retrieval_ms:.2f}"
+            )
             message = self._compose_no_results_message(diagnostics)
             return self._no_results_response(
                 query=query,
@@ -69,9 +109,12 @@ class ResparseOrchestrator:
             )
 
         print("Ranking the papers!")
+        ranking_start = perf_counter()
         ranked_papers = ranking_agent.rank(candidate_papers)
+        ranking_ms = (perf_counter() - ranking_start) * 1000
 
         print("Generating explanations now!")
+        explanation_start = perf_counter()
         final_results = []
 
         for paper in ranked_papers:
@@ -117,6 +160,7 @@ class ResparseOrchestrator:
                 'score_breakdown': explanation_data['score_breakdown']
             }
             final_results.append(result)
+        explanation_ms = (perf_counter() - explanation_start) * 1000
 
         response = {
             'query': query,
@@ -128,6 +172,40 @@ class ResparseOrchestrator:
             'diagnostics': diagnostics,
             'from_cache': False
         }
+
+        total_ms = (perf_counter() - request_start) * 1000
+        compute_ms = total_ms - (cache_lookup_ms or 0)
+
+        response['diagnostics'] = {
+            **diagnostics,
+            'timing': {
+                'total_ms': total_ms,
+                'cache_lookup_ms': cache_lookup_ms,
+                'processing_ms': processing_ms,
+                'retrieval_ms': retrieval_ms,
+                'ranking_ms': ranking_ms,
+                'explanation_ms': explanation_ms,
+                'compute_ms': compute_ms
+            }
+        }
+
+        print(
+            "[metrics][query] completed "
+            f"query='{query}' total_ms={total_ms:.2f} "
+            f"compute_ms={compute_ms:.2f} "
+            f"processing_ms={processing_ms:.2f} "
+            f"retrieval_ms={retrieval_ms:.2f} "
+            f"ranking_ms={ranking_ms:.2f} "
+            f"explanation_ms={explanation_ms:.2f}"
+        )
+
+        if use_cache and not cache_hit:
+            print(
+                "[metrics][cache] miss "
+                f"query='{query}' lookup_ms={cache_lookup_ms if cache_lookup_ms is not None else 0:.2f} "
+                f"compute_ms={compute_ms:.2f} "
+                f"total_ms={total_ms:.2f}"
+            )
 
         if use_cache:
             cache.set_query_cache(query, response)

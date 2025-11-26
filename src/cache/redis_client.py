@@ -3,6 +3,13 @@ import json
 import hashlib
 from typing import Optional, Any
 from src.config.settings import settings
+from decimal import Decimal
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 class RedisCache:
     def __init__(self) -> None:
@@ -37,7 +44,8 @@ class RedisCache:
             return False
         
         try:
-            serialized = json.dumps(value)
+            # Use DecimalEncoder so objects containing Decimal values can be serialized
+            serialized = json.dumps(value, cls=DecimalEncoder)
             return self.client.setex(
                 key, 
                 ttl or self.ttl, 

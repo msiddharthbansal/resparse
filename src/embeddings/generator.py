@@ -1,6 +1,7 @@
 from sentence_transformers import SentenceTransformer
 from typing import List, Union
 import numpy as np
+from time import perf_counter
 from src.config.settings import settings
 
 class EmbeddingGenerator:
@@ -17,7 +18,14 @@ class EmbeddingGenerator:
         )
     
     def encode_query(self, query: str) -> List[float]:
+        start = perf_counter()
         embedding = self.encode(query)
+        duration_ms = (perf_counter() - start) * 1000
+        preview = query[:40] + ('...' if len(query) > 40 else '')
+        print(
+            "[metrics][embedding] "
+            f"query='{preview}' duration_ms={duration_ms:.2f}"
+        )
         return embedding.tolist()
 
 embedding_generator = EmbeddingGenerator()
